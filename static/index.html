@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Stable Diffusion Image Generator</title>
+    <style>
+      body {
+        font-family: "Open Sans", sans-serif;
+        background-color: #eee2de;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+
+      h1 {
+        font-weight: bold;
+        font-size: 48px;
+        color: #2b2a4c;
+        text-align: center;
+        padding-top: 20px;
+        margin-bottom: 40px;
+      }
+
+      form {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      input[type="text"] {
+        padding: 10px;
+        border: 2px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+        flex: 1;
+        margin-right: 10px;
+      }
+
+      button[type="submit"] {
+        padding: 10px 20px;
+        border: none;
+        background-color: #ea906c;
+        color: #fff;
+        font-size: 16px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .image-container {
+        text-align: center;
+      }
+
+      #resultImage {
+        max-width: 100%;
+        margin-top: 20px;
+        border: 2px solid #ccc;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Stable Diffusion Image Generator</h1>
+
+    <form id="imageForm">
+      <input
+        type="text"
+        id="textInput"
+        placeholder="Enter Prompt for the Image"
+        required
+      />
+      <button type="submit">Submit</button>
+    </form>
+
+    <div class="image-container"></div>
+
+    <script>
+      document
+        .getElementById("imageForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          var text = document.getElementById("textInput").value;
+          fetchImage(text);
+        });
+
+      function fetchImage(text) {
+        fetch("/api", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ image_prompt: text }),
+        })
+          .then(function (response) {
+            if (response.ok) {
+              return response.blob();
+            }
+            throw new Error("Network response was not OK.");
+          })
+          .then(function (imageBlob) {
+            var imageUrl = URL.createObjectURL(imageBlob);
+
+            var img = document.createElement("img");
+            img.src = imageUrl;
+            img.alt = text;
+            document.querySelector(".image-container").appendChild(img);
+          })
+          .catch(function (error) {
+            console.log("Error fetching image:", error);
+            alert("Error Generating Image");
+          });
+      }
+    </script>
+  </body>
+</html>
